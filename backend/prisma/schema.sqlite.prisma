@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                  String         @id @default(uuid())
+  name                String
+  email               String         @unique
+  phone               String?
+  passwordHash        String
+  role                String         @default("CITIZEN")
+  districtId          String?
+  stateId             String?
+  failedLoginAttempts Int            @default(0)
+  lockedUntil         DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  
+  refreshTokens       RefreshToken[]
+  submittedClaims     Claim[]        @relation("Claimant")
+  auditLogs           AuditLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@map("refresh_tokens")
+}
+
+model Claim {
+  id           String      @id @default(uuid())
+  claimNumber  String      @unique
+  claimType    String
+  claimantId   String
+  districtId   String
+  tehsilId     String
+  villageId    String
+  status       String      @default("DRAFT")
+  
+  geometryJson String?
+  areaHectares Float       @default(0.0)
+  riskScore    Float       @default(0.0)
+  riskLevel    String      @default("LOW")
+  version      Int         @default(1)
+  
+  submittedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  claimant     User        @relation("Claimant", fields: [claimantId], references: [id])
+  evidence     Evidence[]
+  conflictsA   Conflict[]  @relation("ClaimA")
+  conflictsB   Conflict[]  @relation("ClaimB")
+
+  @@map("claims")
+}
+
+model Evidence {
+  id                String   @id @default(uuid())
+  claimId           String
+  type              String
+  fileUrl           String
+  latitude          Float?
+  longitude         Float?
+  capturedBy        String
+  fileHash          String?
+  mimeTypeVerified  Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  claim Claim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+
+  @@map("evidence")
+}
+
+model Conflict {
+  id                String   @id @default(uuid())
+  claimAId          String
+  claimBId          String
+  overlapArea       Float
+  overlapPercentage Float
+  conflictType      String   @default("BOUNDARY_OVERLAP")
+  severity          String   @default("LOW")
+  status            String   @default("PENDING")
+  detectedAt        DateTime @default(now())
+  reviewedBy        String?
+  resolutionNote    String?
+  resolvedAt        DateTime?
+
+  claimA Claim @relation("ClaimA", fields: [claimAId], references: [id], onDelete: Cascade)
+  claimB Claim @relation("ClaimB", fields: [claimBId], references: [id], onDelete: Cascade)
+
+  @@map("conflicts")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  oldValue   String?
+  newValue   String?
+  ipAddress  String?
+  timestamp  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}

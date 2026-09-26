@@ -1,0 +1,24 @@
+{
+  "name": "vansetu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VanSetu - AI-Powered FRA Atlas & WebGIS Decision Support System (SIH12508)",
+  "scripts": {
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "test:backend": "cd backend && npm test",
+    "build": "cd backend && npm run build && cd ../frontend && npm run build"
+  },
+  "keywords": [
+    "GIS",
+    "FRA",
+    "PostGIS",
+    "React",
+    "Express",
+    "Decision Support System"
+  ],
+  "author": "VanSetu Team",
+  "license": "MIT"
+}

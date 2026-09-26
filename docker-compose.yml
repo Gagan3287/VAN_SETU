@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis:15-3.3-alpine
+    container_name: vansetu_postgis
+    restart: always
+    environment:
+      POSTGRES_DB: vansetu_db
+      POSTGRES_USER: vansetu_user
+      POSTGRES_PASSWORD: vansetu_secret
+    ports:
+      - "5433:5432"
+    networks:
+      - vansetu_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vansetu_user -d vansetu_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  vansetu_net:
+    name: vansetu_isolated_network
+    driver: bridge
+
+volumes:
+  postgis_data:
