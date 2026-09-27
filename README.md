@@ -53,3 +53,11 @@ Frontend will run at `http://localhost:5173` and Backend REST API at `http://loc
 2. **Brute Force Protection**: 5 failed login attempts trigger 15-minute account lockout.
 3. **Server-Side Refresh Token Revocation**: Revocation tracked via `refresh_tokens` table on logout.
 4. **Data Privacy**: Synthetic demo data only; audit logging records user actions and IP addresses.
+
+---
+
+## 📜 License
+
+This project is licensed under the Apache License, Version 2.0 — see the [LICENSE](file:///e:/SIH-2026/LICENSE) file for details.  
+Copyright (c) 2026 **Vengala Gagan Chadra Tej**.
+
